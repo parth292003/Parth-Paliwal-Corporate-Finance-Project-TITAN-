@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TITAN Company Limited — Finance Dashboard | Parth Paliwal</title>
+<meta name="description" content="Premium cinematic finance dashboard for TITAN Company Limited, a TATA Group enterprise. Created by Parth Paliwal.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--gold:#C5A55A;--gold-light:#E8D48B;--gold-dark:#9A7B2E;
+--bg:#0A0A0F;--bg2:#12121A;--bg3:#1A1A25;
+--glass:rgba(255,255,255,0.04);--glass2:rgba(255,255,255,0.08);
+--text:#F2F2F7;--text2:#C5C5D5;--text3:#8E8E9F;
+--accent:#2A6FDB;--red:#E85555;--green:#4ADE80;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gold-dark);border-radius:3px}
+
+/* INTRO OVERLAY */
+#intro{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 0.4s ease}
+#intro.hide{opacity:0;pointer-events:none}
+#intro canvas{position:absolute;inset:0;z-index:0}
+.intro-content{position:relative;z-index:1;text-align:center}
+.titan-logo-intro{font-family:'Playfair Display',serif;font-size:72px;font-weight:700;
+background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--gold-dark));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+opacity:0;animation:logoReveal 2s ease forwards 0.5s;
+text-shadow:0 0 80px rgba(197,165,90,0.3);letter-spacing:8px}
+.tata-badge{font-size:14px;letter-spacing:6px;color:var(--gold);opacity:0;animation:fadeUp 1.5s ease forwards 1.5s;margin-top:8px;text-transform:uppercase}
+.intro-line{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px auto;opacity:0;animation:fadeUp 1s ease forwards 2s}
+.intro-title{font-size:18px;color:var(--text2);opacity:0;animation:fadeUp 1s ease forwards 2.5s;font-weight:300;letter-spacing:2px}
+.intro-credit{font-size:14px;color:var(--text3);opacity:0;animation:fadeUp 1s ease forwards 3s;margin-top:8px}
+.intro-submit{font-size:13px;color:var(--text3);opacity:0;animation:fadeUp 1s ease forwards 3.4s;margin-top:4px}
+.intro-enter{margin-top:40px;opacity:0;animation:fadeUp 1s ease forwards 4s}
+.intro-enter button{background:none;border:1px solid var(--gold);color:var(--gold);padding:12px 40px;font-size:13px;letter-spacing:4px;cursor:pointer;text-transform:uppercase;font-family:'Inter';transition:all 0.4s;border-radius:2px}
+.intro-enter button:hover{background:var(--gold);color:var(--bg);box-shadow:0 0 30px rgba(197,165,90,0.4)}
+
+@keyframes logoReveal{0%{opacity:0;transform:scale(0.8);filter:blur(10px)}100%{opacity:1;transform:scale(1);filter:blur(0)}}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%{transform:scale(0.95);box-shadow:0 0 0 0 rgba(74,222,128,0.7)}70%{transform:scale(1);box-shadow:0 0 0 6px rgba(74,222,128,0)}100%{transform:scale(0.95);box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+
+/* MAIN DASHBOARD */
+#dashboard{opacity:0;transition:opacity 0.3s ease}
+#dashboard.show{opacity:1}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;
+background:rgba(10,10,15,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(197,165,90,0.12);transition:all 0.3s}
+.nav-logo{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;
+background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-tata{font-size:10px;letter-spacing:4px;color:var(--text3);text-transform:uppercase;margin-left:12px}
+.nav-links{display:flex;gap:24px}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:all 0.3s;position:relative}
+.nav-links a:hover{color:var(--gold)}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s}
+.nav-links a:hover::after{width:100%}
+
+/* SECTIONS */
+.section{padding:120px 60px;position:relative;min-height:100vh}
+.section-label{font-size:11px;letter-spacing:6px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;font-weight:600;display:block;text-align:center}
+.section-title{font-family:'Playfair Display',serif;font-size:46px;font-weight:700;margin-bottom:20px;
+background:linear-gradient(135deg,var(--text) 30%,var(--gold-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.01em;text-align:center}
+.section-desc{color:var(--text);font-size:15px;line-height:1.85;max-width:850px;margin:0 auto 56px;font-weight:400;text-align:center;letter-spacing:0.01em}
+
+/* CARDS */
+.card{background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(197,165,90,0.08);border-radius:16px;padding:32px;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(197,165,90,0.4),transparent);opacity:0.5;transition:opacity 0.5s}
+.card::after{content:'';position:absolute;top:0;left:-150%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(197,165,90,0.08),transparent);transform:skewX(-25deg);transition:none;pointer-events:none}
+.card:hover{border-color:rgba(197,165,90,0.35);transform:translateY(-6px);box-shadow:0 20px 50px rgba(197,165,90,0.12)}
+.card:hover::before{opacity:1}
+.card:hover::after{left:150%;transition:all 1s ease-in-out}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+
+/* KPI CARDS */
+.kpi{text-align:center;padding:28px 20px}
+.kpi-value{font-size:38px;font-weight:800;font-family:'Playfair Display',serif;background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;letter-spacing:-0.01em}
+.kpi-label{font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* BULLET CARDS */
+.bullet-card{padding:24px;display:flex;gap:16px;align-items:flex-start}
+.bullet-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.bullet-icon.green{background:rgba(74,222,128,0.1);color:var(--green)}
+.bullet-icon.red{background:rgba(232,85,85,0.1);color:var(--red)}
+.bullet-text h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.bullet-text p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* CHART CONTAINERS */
+.chart-box{background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
+.chart-box h3{font-size:14px;font-weight:600;margin-bottom:16px;color:var(--text);font-family:'Playfair Display',serif;letter-spacing:1px;text-transform:uppercase}
+.chart-box canvas{max-height:320px}
+
+/* SUB-BRAND LOGOS */
+.brands-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:32px}
+.brand-card{background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.brand-card:hover{border-color:var(--gold);transform:translateY(-6px);box-shadow:0 12px 40px rgba(197,165,90,0.2)}
+.brand-card.active{border-color:var(--gold);background:linear-gradient(135deg,rgba(197,165,90,0.1),rgba(197,165,90,0.02));box-shadow:0 12px 40px rgba(197,165,90,0.15)}
+.brand-logo-svg{height:40px;margin-bottom:8px;display:flex;align-items:center;justify-content:center}
+.brand-logo-svg svg{height:36px;width:auto}
+.brand-name{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text2)}
+.brand-detail{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(197,165,90,0.2);border-radius:16px;padding:32px;margin-top:24px;display:none;animation:fadeUp 0.5s ease}
+.brand-detail.show{display:block}
+.brand-detail h3{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);margin-bottom:12px}
+.brand-detail p{color:var(--text2);font-size:14px;line-height:1.8;margin-bottom:16px}
+.brand-metrics{display:flex;gap:24px;flex-wrap:wrap}
+.brand-metric{background:rgba(197,165,90,0.06);border-radius:8px;padding:12px 20px;text-align:center}
+.brand-metric .val{font-size:20px;font-weight:700;color:var(--gold)}
+.brand-metric .lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+
+/* DONUT CENTER */
+.donut-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.donut-center{position:absolute;text-align:center}
+.donut-center .big{font-size:24px;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif}
+.donut-center .sm{font-size:11px;color:var(--text3)}
+
+/* CONCLUSION */
+.conclusion-card{background:linear-gradient(135deg,rgba(197,165,90,0.08),rgba(197,165,90,0.02));border:1px solid rgba(197,165,90,0.2);border-radius:20px;padding:48px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.conclusion-card h2{font-family:'Playfair Display',serif;font-size:36px;color:var(--gold);margin-bottom:24px}
+.conclusion-card p{font-size:15px;color:var(--text2);line-height:2;max-width:800px;margin:0 auto}
+
+/* ANIMATIONS */
+.reveal{opacity:0;transform:translateY(40px);transition:all 0.8s cubic-bezier(0.16,1,0.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* BG EFFECTS */
+.bg-grid{position:fixed;inset:0;z-index:-1;
+background-image:linear-gradient(rgba(197,165,90,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(197,165,90,0.02) 1px,transparent 1px);
+background-size:60px 60px}
+.bg-glow{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(150px);opacity:0.07;z-index:-1;pointer-events:none}
+.bg-glow.g1{background:var(--gold);top:-200px;right:-200px}
+.bg-glow.g2{background:var(--accent);bottom:-200px;left:-200px}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow g1"></div>
+<div class="bg-glow g2"></div>
+
+<!-- INTRO -->
+<div id="intro">
+<canvas id="particles"></canvas>
+<div class="intro-content">
+<div class="titan-logo-intro">TITAN</div>
+<div class="tata-badge">A TATA Enterprise</div>
+<div class="intro-line"></div>
+<div class="intro-title">Finance Final Project — TITAN Company Limited</div>
+<div class="intro-credit">Created by Parth Paliwal</div>
+<div class="intro-submit">Submitted to Prachi Ganu Ma'am</div>
+<div class="intro-enter"><button onclick="enterDashboard()">Enter Dashboard</button></div>
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+<nav>
+<div style="display:flex;align-items:baseline">
+<span class="nav-logo">TITAN</span><span class="nav-tata">A TATA Enterprise</span>
+</div>
+<div class="nav-links">
+<a href="#company">Company</a><a href="#industry">Industry</a><a href="#business">Business</a>
+<a href="#financial">Financials</a><a href="#jewellery-metrics">Jewellery</a><a href="#strengths">Analysis</a><a href="#equity">Equity</a>
+<a href="#capital">Capital</a><a href="#payout">Dividends</a><a href="#conclusion">Conclusion</a>
+</div>
+</nav>
+
+<!-- LIVE TRACKER BAR -->
+<div id="liveTracker" style="position:fixed;top:56px;left:0;right:0;z-index:999;background:rgba(10,10,15,0.95);border-bottom:1px solid rgba(197,165,90,0.15);padding:8px 40px;display:flex;align-items:center;gap:24px;font-size:12px">
+<span style="color:var(--gold);font-weight:600;letter-spacing:2px;text-transform:uppercase;white-space:nowrap;display:flex;align-items:center;gap:8px">
+  <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite"></span>
+  LIVE TRACKER
+</span>
+<span id="tickerPrice" style="color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:600">TITAN.NS: Loading...</span>
+<span id="tickerChange" style="font-family:'JetBrains Mono',monospace;font-weight:600">--</span>
+<span id="tickerTime" style="color:var(--text3);margin-left:auto;font-size:11px">Fetching...</span>
+<span style="color:var(--text3);font-size:10px;letter-spacing:1px">Bridged via terminal / CORS proxy</span>
+</div>
+
+<!-- HERO -->
+<div class="section" style="display:flex;align-items:center;justify-content:center;text-align:center;padding-top:160px" id="hero">
+<div class="reveal">
+<div class="section-label">BSE: 500114 &nbsp;|&nbsp; NSE: TITAN</div>
+<h1 style="font-family:'Playfair Display',serif;font-size:64px;font-weight:700;background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px">TITAN Company Limited</h1>
+<p style="color:var(--text2);font-size:16px;max-width:600px;margin:0 auto 48px;line-height:1.8">India's leading lifestyle company — crafting timeless luxury across Jewellery, Watches, Eyewear & beyond under the prestigious TATA Group umbrella.</p>
+<div class="grid4" style="max-width:900px;margin:0 auto">
+<div class="card kpi"><div class="kpi-value" data-count-to="55355" data-count-prefix="₹" data-count-suffix=" Cr">0</div><div class="kpi-label">Revenue (Cr)</div><div class="kpi-sub">FY2025</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="3335" data-count-prefix="₹" data-count-suffix=" Cr">0</div><div class="kpi-label">Net Profit (Cr)</div><div class="kpi-sub">FY2025</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="3.9" data-count-prefix="₹" data-count-suffix="L Cr" data-count-decimals="1">0</div><div class="kpi-label">Market Cap</div><div class="kpi-sub">May 2026</div></div>
+<div class="card kpi"><div class="kpi-value" style="font-family:'Playfair Display',serif;font-weight:800;font-size:38px">AAA</div><div class="kpi-label">Credit Rating</div><div class="kpi-sub">ICRA / CRISIL</div></div>
+</div>
+</div>
+</div>
+
+<!-- 1. COMPANY DESCRIPTION -->
+<div class="section" id="company">
+<div class="reveal">
+<div class="section-label">01 — Overview</div>
+<div class="section-title">Company Description</div>
+<div class="section-desc">Titan Company Limited, a flagship enterprise of the TATA Group, is India's largest lifestyle conglomerate and the world's fifth-largest integrated watch manufacturer. Founded in 1984 as a joint venture between the Tata Group and the Tamil Nadu Industrial Development Corporation (TIDCO), Titan has evolved from a watch company into a multi-category lifestyle powerhouse with a market capitalisation exceeding 3.9 lakh crore.</div>
+</div>
+<div class="grid3 reveal" style="animation-delay:0.2s">
+<div class="card">
+<h4 style="color:var(--gold);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Heritage</h4>
+<p style="color:var(--text2);font-size:13px;line-height:1.8">Established in 1984, Titan revolutionized India's watch industry by introducing quartz technology. Over four decades, it has become synonymous with trust, design excellence, and premium retail experiences across India.</p>
+</div>
+<div class="card">
+<h4 style="color:var(--gold);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Scale & Presence</h4>
+<p style="color:var(--text2);font-size:13px;line-height:1.8">2,800+ exclusive retail stores across 400+ cities. International presence in Middle East, Southeast Asia, and North America. Over 900+ Tanishq stores — India's largest jewellery retail chain with unparalleled brand trust.</p>
+</div>
+<div class="card">
+<h4 style="color:var(--gold);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Credit & Governance</h4>
+<p style="color:var(--text2);font-size:13px;line-height:1.8">Rated ICRA AAA (Stable) and CRISIL AAA/Stable — the highest credit rating achievable. Backed by TATA Group's governance standards, ensuring exceptional financial flexibility and institutional trust.</p>
+</div>
+</div>
+</div>
+
+<!-- 2. INDUSTRY DESCRIPTION -->
+<div class="section" id="industry">
+<div class="reveal">
+<div class="section-label">02 — Industry Landscape</div>
+<div class="section-title">Industry Description</div>
+<div class="section-desc">India's lifestyle and luxury retail industry is one of the fastest-growing consumer markets globally, driven by rising disposable incomes, urbanization, and a young aspirational demographic. The organized jewellery market alone is valued at over $80 billion, with penetration increasing as consumers shift from unorganized goldsmiths to trusted retail brands. The watches and wearables segment is experiencing strong growth with the integration of smart technology. Key growth drivers include wedding demand, festive spending, digital commerce expansion, and premiumization trends. However, the industry faces risks from gold price volatility, import duty fluctuations, intense competition from both organized and unorganized players, and evolving regulatory frameworks around hallmarking and taxation.</div>
+</div>
+<div class="grid3 reveal">
+<div class="card" style="text-align:center;padding:40px 24px">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">💎</div>
+<div style="font-size:13px;font-weight:600;margin-bottom:8px">Jewellery Market</div>
+<div class="kpi-value" data-count-to="80" data-count-prefix="$" data-count-suffix="B+" style="font-size:28px;margin-bottom:4px">0</div>
+<div style="font-size:11px;color:var(--text3);margin-top:4px">India's Organized + Unorganized</div>
+</div>
+<div class="card" style="text-align:center;padding:40px 24px">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">⌚</div>
+<div style="font-size:13px;font-weight:600;margin-bottom:8px">Watches & Wearables</div>
+<div class="kpi-value" data-count-to="18" data-count-suffix="% CAGR" style="font-size:28px;margin-bottom:4px">0</div>
+<div style="font-size:11px;color:var(--text3);margin-top:4px">Fastest Growing Segment</div>
+</div>
+<div class="card" style="text-align:center;padding:40px 24px">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">👓</div>
+<div style="font-size:13px;font-weight:600;margin-bottom:8px">Eyecare Industry</div>
+<div class="kpi-value" data-count-to="25000" data-count-prefix="₹" data-count-suffix=" Cr" style="font-size:28px;margin-bottom:4px">0</div>
+<div style="font-size:11px;color:var(--text3);margin-top:4px">Indian Market Size</div>
+</div>
+</div>
+</div>
+
+<!-- 3. BUSINESS PROFILE + SUB-BRANDS -->
+<div class="section" id="business">
+<div class="reveal">
+<div class="section-label">03 — Business Segments</div>
+<div class="section-title">Business Description & Profile</div>
+<div class="section-desc">Titan operates across four major business segments, each commanding significant market share in India's organized retail landscape. Click on any sub-brand below to explore its details and revenue contribution.</div>
+</div>
+<div class="grid2 reveal">
+<div class="chart-box"><h3>Segment Revenue Breakdown — FY2025</h3><canvas id="segmentPie"></canvas></div>
+<div class="chart-box"><h3>Segment Revenue Growth (Cr) — 5 Year</h3><canvas id="segmentBar"></canvas></div>
+</div>
+
+<!-- Sub-brand SVG logos -->
+<div class="reveal" style="margin-top:48px">
+<div class="section-label">Sub-Brands & Portfolio</div>
+<p style="color:var(--text2);font-size:14px;margin-bottom:24px">Click on any brand to view details and financial contribution</p>
+<div class="brands-grid">
+<div class="brand-card" onclick="showBrand('tanishq')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="28" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="bold" fill="#C5A55A" letter-spacing="3">TANISHQ</text></svg></div><div class="brand-name">Tanishq</div></div>
+<div class="brand-card" onclick="showBrand('caratlane')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="26" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="600" fill="#E8E8F0" letter-spacing="1">CaratLane</text><path d="M45 32 L60 36 L75 32" stroke="#C5A55A" stroke-width="1" fill="none"/></svg></div><div class="brand-name">CaratLane</div></div>
+<div class="brand-card" onclick="showBrand('titan_watches')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="20" text-anchor="middle" font-family="Georgia,serif" font-size="12" font-weight="bold" fill="#E8E8F0" letter-spacing="4">TITAN</text><text x="60" y="33" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#C5A55A" letter-spacing="2">WATCHES</text></svg></div><div class="brand-name">Titan Watches</div></div>
+<div class="brand-card" onclick="showBrand('fastrack')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="27" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="16" font-weight="900" fill="#E8E8F0" letter-spacing="1">FASTRACK</text></svg></div><div class="brand-name">Fastrack</div></div>
+<div class="brand-card" onclick="showBrand('titan_eye')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="20" text-anchor="middle" font-family="Georgia,serif" font-size="12" font-weight="bold" fill="#E8E8F0" letter-spacing="3">TITAN</text><text x="60" y="33" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="bold" fill="#C5A55A" letter-spacing="1">EYE+</text></svg></div><div class="brand-name">Titan Eye+</div></div>
+<div class="brand-card" onclick="showBrand('taneira')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="27" text-anchor="middle" font-family="Georgia,serif" font-size="16" font-weight="normal" fill="#C5A55A" letter-spacing="4" font-style="italic">Taneira</text></svg></div><div class="brand-name">Taneira</div></div>
+<div class="brand-card" onclick="showBrand('zoya')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="28" text-anchor="middle" font-family="Georgia,serif" font-size="20" font-weight="bold" fill="#C5A55A" letter-spacing="6">ZOYA</text></svg></div><div class="brand-name">Zoya</div></div>
+<div class="brand-card" onclick="showBrand('mia')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="22" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="normal" fill="#E8E8F0" letter-spacing="4" font-style="italic">Mia</text><text x="60" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="#C5A55A" letter-spacing="1">by Tanishq</text></svg></div><div class="brand-name">Mia</div></div>
+<div class="brand-card" onclick="showBrand('sonata')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="27" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#E8E8F0" letter-spacing="3">SONATA</text></svg></div><div class="brand-name">Sonata</div></div>
+<div class="brand-card" onclick="showBrand('skinn')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="22" text-anchor="middle" font-family="Georgia,serif" font-size="16" font-weight="normal" fill="#E8E8F0" letter-spacing="3" font-style="italic">SKINN</text><text x="60" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="#C5A55A" letter-spacing="1">by Titan</text></svg></div><div class="brand-name">Skinn</div></div>
+<div class="brand-card" onclick="showBrand('helios')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="27" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#C5A55A" letter-spacing="4">HELIOS</text></svg></div><div class="brand-name">Helios</div></div>
+<div class="brand-card" onclick="showBrand('teal')"><div class="brand-logo-svg"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="60" y="22" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#E8E8F0" letter-spacing="4">TEAL</text><text x="60" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#C5A55A" letter-spacing="1">TITAN ENGINEERING</text></svg></div><div class="brand-name">TEAL</div></div>
+</div>
+<div id="brandDetail" class="brand-detail"></div>
+</div>
+</div>
+
+<!-- 4. FINANCIAL PROFILE -->
+<div class="section" id="financial">
+<div class="reveal">
+<div class="section-label">04 — Financial Metrics</div>
+<div class="section-title">Financial Profile</div>
+<div class="section-desc">Key financial ratios and performance metrics reflecting Titan's operational efficiency, profitability, and financial health across the retail and luxury consumer industry.</div>
+</div>
+<div class="grid4 reveal">
+<div class="card kpi"><div class="kpi-value" data-count-to="7.2" data-count-suffix="%" data-count-decimals="1">0</div><div class="kpi-label">Revenue Growth</div><div class="kpi-sub">FY25 YoY</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="9.6" data-count-suffix="%" data-count-decimals="1">0</div><div class="kpi-label">EBITDA Margin</div><div class="kpi-sub">FY25</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="30.6" data-count-suffix="%" data-count-decimals="1">0</div><div class="kpi-label">ROCE</div><div class="kpi-sub">FY25</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="37.7" data-count-suffix="%" data-count-decimals="1">0</div><div class="kpi-label">ROE</div><div class="kpi-sub">TTM</div></div>
+</div>
+<div class="grid4 reveal" style="margin-top:20px">
+<div class="card kpi"><div class="kpi-value" data-count-to="0.4" data-count-suffix="x" data-count-decimals="1">0</div><div class="kpi-label">Debt/Equity</div><div class="kpi-sub">FY24</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="37.6" data-count-decimals="1">0</div><div class="kpi-label">EPS (TTM)</div><div class="kpi-sub">Diluted</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="6.0" data-count-suffix="%" data-count-decimals="1">0</div><div class="kpi-label">Net Profit Margin</div><div class="kpi-sub">FY25</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="3335" data-count-prefix="₹ " data-count-suffix=" Cr">0</div><div class="kpi-label">Free Cash Flow</div><div class="kpi-sub">FY25</div></div>
+</div>
+<div class="grid2 reveal" style="margin-top:32px">
+<div class="chart-box"><h3>Revenue & Net Profit Trend (Cr)</h3><canvas id="revChart"></canvas></div>
+<div class="chart-box"><h3>Profitability Ratios (%)</h3><canvas id="ratioChart"></canvas></div>
+</div>
+</div>
+
+<!-- 4B. JEWELLERY OPERATIONAL METRICS -->
+<div class="section" id="jewellery-metrics">
+<div class="reveal">
+<div class="section-label">04B — Sector-Specific Performance</div>
+<div class="section-title">Jewellery Segment Key Ratios & Metrics</div>
+<div class="section-desc">As India's preeminent organized jewelry retailer under the Tanishq, CaratLane, Mia, and Zoya brands, Titan's performance is deeply tied to key sector-specific operational and risk metrics.</div>
+</div>
+<div class="grid3 reveal">
+<div class="card">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">💎</div>
+<h4 style="color:var(--gold);font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Studded Share</h4>
+<div class="kpi-value" data-count-to="33" data-count-suffix="%" style="font-size:36px;margin-bottom:4px">0</div>
+<p style="color:var(--text2);font-size:12px;line-height:1.6">Share of diamond & studded jewellery in sales. Studded pieces yield **30-35% gross margins** compared to ~12% for plain gold, making this the primary driver for overall profit margin expansion.</p>
+</div>
+<div class="card">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">🔄</div>
+<h4 style="color:var(--gold);font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Inventory Turnover</h4>
+<div class="kpi-value" data-count-to="2.5" data-count-suffix="x" data-count-decimals="1" style="font-size:36px;margin-bottom:4px">0</div>
+<p style="color:var(--text2);font-size:12px;line-height:1.6">Reflects how fast inventory is replenished. Jewelry retail demands massive working capital; an optimized **2.5x turnover** ensures capital is unlocked and cash cycles remain robust.</p>
+</div>
+<div class="card">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">📈</div>
+<h4 style="color:var(--gold);font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Same Store Sales Growth (SSG)</h4>
+<div class="kpi-value" data-count-to="12" data-count-suffix="%" style="font-size:36px;margin-bottom:4px">0</div>
+<p style="color:var(--text2);font-size:12px;line-height:1.6">Measures organic volume and value expansion in mature outlets. A steady double-digit SSG (~12% YoY) reflects deep-rooted brand equity, consumer trust, and effective localized campaigns.</p>
+</div>
+</div>
+<div class="grid3 reveal" style="margin-top:24px">
+<div class="card">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">🏦</div>
+<h4 style="color:var(--gold);font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">GML Financing Share</h4>
+<div class="kpi-value" data-count-to="60" data-count-suffix="%" style="font-size:36px;margin-bottom:4px">0</div>
+<p style="color:var(--text2);font-size:12px;line-height:1.6">**Gold Metal Loan (GML)** procurement share in working capital. Borrowing physical gold rather than cash shields Titan from gold price swings and lowers capital costs to a mere **3-4%**.</p>
+</div>
+<div class="card">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">🛡️</div>
+<h4 style="color:var(--gold);font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Gold Hedging Efficiency</h4>
+<div class="kpi-value" data-count-to="95" data-count-suffix="%" style="font-size:36px;margin-bottom:4px">0</div>
+<p style="color:var(--text2);font-size:12px;line-height:1.6">Percentage of raw material exposure hedged. With gold prices highly volatile, Titan's near-perfect hedging ensures operating margins remain insulated from gold rate drops and duty cuts.</p>
+</div>
+<div class="card">
+<div style="font-size:32px;margin-bottom:12px;color:var(--gold)">🛍️</div>
+<h4 style="color:var(--gold);font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Average Ticket Size</h4>
+<div class="kpi-value" data-count-to="1.1" data-count-prefix="₹ " data-count-suffix=" Lakhs" data-count-decimals="1" style="font-size:36px;margin-bottom:4px">0</div>
+<p style="color:var(--text2);font-size:12px;line-height:1.6">Average expenditure per jewellery purchase transaction. High ticket values reflect Titan's dominant position in bridal, wedding, and high-end festival jewellery markets in India.</p>
+</div>
+</div>
+</div>
+
+<!-- 5. STRENGTHS & WEAKNESSES -->
+<div class="section" id="strengths">
+<div class="reveal">
+<div class="section-label">05 — Credit Analysis</div>
+<div class="section-title">Key Strengths & Weaknesses</div>
+<div class="section-desc">Based on ICRA AAA and CRISIL AAA credit rating reports — reflecting Titan's competitive position, financial discipline, and risk factors.</div>
+</div>
+<div class="grid2 reveal">
+<div>
+<h3 style="color:var(--green);font-size:14px;letter-spacing:3px;text-transform:uppercase;margin-bottom:20px">&#9670; Key Strengths</h3>
+<div class="card bullet-card" style="margin-bottom:12px"><div class="bullet-icon green"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div><div class="bullet-text"><h4>Market Leadership</h4><p>Dominant position in organized jewellery (Tanishq) and watches with 900+ Tanishq stores and extensive omni-channel retail presence across India.</p></div></div>
+<div class="card bullet-card" style="margin-bottom:12px"><div class="bullet-icon green"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="6" width="14" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 6L10 2L17 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div><div class="bullet-text"><h4>Tata Group Parentage</h4><p>Exceptional financial flexibility with easy access to capital markets and competitive borrowing costs, backed by Tata Group's governance and brand trust.</p></div></div>
+<div class="card bullet-card" style="margin-bottom:12px"><div class="bullet-icon green"><svg width="20" height="20" viewBox="0 0 20 20"><polyline points="2,14 6,8 10,11 14,5 18,3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="18" cy="3" r="1.5" fill="currentColor"/></svg></div><div class="bullet-text"><h4>Robust Financial Performance</h4><p>Consistent revenue growth, healthy operating margins, strong cash accruals, and solid liquidity with substantial unutilized bank facilities.</p></div></div>
+<div class="card bullet-card" style="margin-bottom:12px"><div class="bullet-icon green"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1"/><line x1="10" y1="3" x2="10" y2="1" stroke="currentColor" stroke-width="1.5"/><line x1="17" y1="10" x2="19" y2="10" stroke="currentColor" stroke-width="1.5"/></svg></div><div class="bullet-text"><h4>Diversified Revenue Streams</h4><p>Multi-category presence across Jewellery, Watches, Eyecare, Fragrances, Sarees (Taneira), and Engineering services (TEAL), reducing single-segment risk.</p></div></div>
+</div>
+<div>
+<h3 style="color:var(--red);font-size:14px;letter-spacing:3px;text-transform:uppercase;margin-bottom:20px">&#9670; Key Weaknesses</h3>
+<div class="card bullet-card" style="margin-bottom:12px"><div class="bullet-icon red"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M10 2L18 18H2Z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="8" x2="10" y2="12" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="15" r="1" fill="currentColor"/></svg></div><div class="bullet-text"><h4>Leverage & Acquisition Risk</h4><p>Debt-funded acquisitions (CaratLane, proposed Damas LLC stake) have increased leverage. Future credit metrics remain sensitive to further acquisition financing.</p></div></div>
+<div class="card bullet-card" style="margin-bottom:12px"><div class="bullet-icon red"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="8" width="14" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="6" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.5"/><path d="M7 8V6a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div><div class="bullet-text"><h4>Competitive Intensity</h4><p>Faces competition from large organized players and the deeply entrenched unorganized jewellery segment, as well as global brands in watches and eyewear.</p></div></div>
+<div class="card bullet-card" style="margin-bottom:12px"><div class="bullet-icon red"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="2" width="12" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1"/><line x1="7" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1"/><line x1="7" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1"/></svg></div><div class="bullet-text"><h4>Regulatory & Market Risks</h4><p>Jewellery business is sensitive to gold import duty fluctuations and gold price volatility, impacting profitability and working capital requirements.</p></div></div>
+<div class="card bullet-card" style="margin-bottom:12px"><div class="bullet-icon red"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="10" y="14" text-anchor="middle" font-size="10" fill="currentColor" font-weight="bold">$</text></svg></div><div class="bullet-text"><h4>Working Capital Intensity</h4><p>Retail jewellery's nature — especially with gold price rallies and store expansion — demands significant working capital and active inventory management.</p></div></div>
+</div>
+</div>
+</div>
+
+<!-- 6. EQUITY VALUATION -->
+<div class="section" id="equity">
+<div class="reveal">
+<div class="section-label">06 — Equity Performance</div>
+<div class="section-title">Equity Valuation & Performance</div>
+<div class="section-desc">Titan's stock has been a consistent wealth creator, delivering ~22% CAGR over 5 years. The premium valuation reflects strong brand equity, consistent growth, and investor confidence in the TATA-backed lifestyle leader.</div>
+</div>
+<div class="grid4 reveal">
+<div class="card kpi"><div class="kpi-value" data-count-to="80" data-count-prefix="~" data-count-suffix="x">0</div><div class="kpi-label">Current P/E</div><div class="kpi-sub">TTM</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="183" data-count-suffix="x">0</div><div class="kpi-label">5Y Peak P/E</div><div class="kpi-sub">Mar 2021</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="73.7" data-count-suffix="x" data-count-decimals="1">0</div><div class="kpi-label">5Y Low P/E</div><div class="kpi-sub">Mar 2023</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="22" data-count-prefix="~" data-count-suffix="%">0</div><div class="kpi-label">5Y CAGR</div><div class="kpi-sub">Stock Returns</div></div>
+</div>
+<div class="grid2 reveal" style="margin-top:32px">
+<div class="chart-box"><h3>5-Year Stock Price Trend</h3><canvas id="stockChart"></canvas></div>
+<div class="chart-box"><h3>P/E Ratio History (5 Years)</h3><canvas id="peChart"></canvas></div>
+</div>
+<div class="grid4 reveal" style="margin-top:20px">
+<div class="card kpi"><div class="kpi-value" data-count-to="4605" data-count-prefix="₹ ">0</div><div class="kpi-label">52W High</div><div class="kpi-sub">NSE</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="3245" data-count-prefix="₹ ">0</div><div class="kpi-label">52W Low</div><div class="kpi-sub">NSE</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="108.6" data-count-suffix="x" data-count-decimals="1">0</div><div class="kpi-label">5-Year Avg P/E</div><div class="kpi-sub">Historical Average</div></div>
+<div class="card kpi"><div class="kpi-value" style="font-family:'Playfair Display',serif;font-weight:800;font-size:38px">24-27x</div><div class="kpi-label">Price/Book</div><div class="kpi-sub">Current Range</div></div>
+</div>
+</div>
+
+<!-- 7. CAPITAL STRUCTURE -->
+<div class="section" id="capital">
+<div class="reveal">
+<div class="section-label">07 — Capital Structure</div>
+<div class="section-title">Capital Structure</div>
+<div class="section-desc">Titan maintains a conservative capital structure backed by the TATA Group's financial credibility. Promoter holding stands at ~52.9%, providing stability and long-term vision. The debt-to-equity ratio of 0.4x reflects prudent leverage management.</div>
+</div>
+<div class="grid2 reveal">
+<div class="chart-box"><h3>Shareholding Pattern</h3><div class="donut-wrap"><canvas id="shareChart" style="max-height:300px"></canvas><div class="donut-center"><div class="big">52.9%</div><div class="sm">Promoters</div></div></div></div>
+<div class="chart-box"><h3>Debt vs Equity Composition</h3><canvas id="debtChart"></canvas></div>
+</div>
+<div class="grid4 reveal" style="margin-top:20px">
+<div class="card kpi"><div class="kpi-value" data-count-to="52.9" data-count-suffix="%" data-count-decimals="1">0</div><div class="kpi-label">Promoter Holding</div><div class="kpi-sub">Tata + TIDCO</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="0.4" data-count-suffix="x" data-count-decimals="1">0</div><div class="kpi-label">Debt/Equity</div><div class="kpi-sub">Conservative</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="9800" data-count-prefix="₹" data-count-suffix=" Cr">0</div><div class="kpi-label">Reserves</div><div class="kpi-sub">FY25</div></div>
+<div class="card kpi"><div class="kpi-value" style="font-family:'Playfair Display',serif;font-weight:800;font-size:38px">AAA</div><div class="kpi-label">Credit Grade</div><div class="kpi-sub">Highest</div></div>
+</div>
+</div>
+
+<!-- 8. PAYOUT POLICY -->
+<div class="section" id="payout">
+<div class="reveal">
+<div class="section-label">08 — Dividend Policy</div>
+<div class="section-title">Payout Policy</div>
+<div class="section-desc">Titan has maintained a consistent and growing dividend payout to shareholders, reflecting confidence in its cash generation capabilities and commitment to shareholder returns. The dividend per share has grown from ₹4 in FY2020 to ₹11 in FY2025 — a 2.75x increase over 5 years.</div>
+</div>
+<div class="grid2 reveal">
+<div class="chart-box"><h3>Dividend Per Share Trend (₹)</h3><canvas id="divChart"></canvas></div>
+<div class="chart-box"><h3>Dividend Yield & Payout</h3><canvas id="divYieldChart"></canvas></div>
+</div>
+<div class="grid3 reveal" style="margin-top:20px">
+<div class="card kpi"><div class="kpi-value" data-count-to="11" data-count-prefix="₹">0</div><div class="kpi-label">DPS (FY25)</div><div class="kpi-sub">Per Share</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="0.25" data-count-suffix="%" data-count-decimals="2">0</div><div class="kpi-label">Dividend Yield</div><div class="kpi-sub">Current</div></div>
+<div class="card kpi"><div class="kpi-value" data-count-to="2.75" data-count-suffix="x" data-count-decimals="2">0</div><div class="kpi-label">5Y DPS Growth</div><div class="kpi-sub">FY20 to FY25</div></div>
+</div>
+</div>
+
+<!-- 9. CONCLUSION -->
+<div class="section" id="conclusion">
+<div class="reveal">
+<div class="conclusion-card">
+<div class="section-label" style="text-align:center">09 — Investment Perspective</div>
+<h2>Conclusion</h2>
+<p>Titan Company Limited stands as India's undisputed lifestyle leader — a unique combination of brand heritage, retail scale, and Tata Group governance that commands premium valuations in every market cycle. With the highest credit rating (AAA), consistent revenue growth exceeding ₹55,000 Cr, expanding margins, and an ambitious diversification strategy across jewellery, wearables, eyecare, and emerging lifestyle categories, Titan is positioned to capture the enormous opportunity in India's organized retail transformation.</p>
+<br>
+<p>The company's core strength lies in Tanishq's dominance of the organized jewellery market, strong cash flows, growing digital presence through CaratLane, and disciplined capital allocation. While premium valuations (~80x PE) demand continued execution excellence, Titan's track record of 22% CAGR shareholder returns over 5 years, rising dividends, and expanding market share make it a compelling long-term investment within India's consumption growth story.</p>
+<br>
+<p style="color:var(--gold);font-weight:600;font-size:16px;margin-top:16px">"In Titan, investors own a piece of India's aspiration — where tradition meets modernity, and trust meets innovation."</p>
+<br>
+<div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(197,165,90,0.2)">
+<p style="font-size:13px;color:var(--text3)">Finance Final Project — TITAN Company Limited<br>Created by <strong style="color:var(--gold)">Parth Paliwal</strong><br>Submitted to <strong style="color:var(--text2)">Prachi Ganu Ma'am</strong></p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div style="text-align:center;padding:40px;border-top:1px solid rgba(255,255,255,0.05)">
+<p style="font-size:11px;color:var(--text3);letter-spacing:2px">TITAN COMPANY LIMITED — A TATA ENTERPRISE &nbsp;|&nbsp; FINANCE DASHBOARD &nbsp;|&nbsp; 2025</p>
+</div>
+</div><!-- end dashboard -->
+
+<script>
+// PARTICLE CANVAS FOR INTRO
+const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');
+let particles=[];
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+class Particle{
+constructor(){this.reset()}
+reset(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;
+this.size=Math.random()*2+0.5;this.speedX=(Math.random()-0.5)*0.5;this.speedY=(Math.random()-0.5)*0.5;
+this.opacity=Math.random()*0.5+0.1;this.color=Math.random()>0.7?'197,165,90':'255,255,255'}
+update(){this.x+=this.speedX;this.y+=this.speedY;
+if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.reset()}
+draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+ctx.fillStyle=`rgba(${this.color},${this.opacity})`;ctx.fill()}}
+for(let i=0;i<120;i++)particles.push(new Particle());
+function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);
+particles.forEach(p=>{p.update();p.draw()});requestAnimationFrame(animateParticles)}
+animateParticles();
+
+// ENTER DASHBOARD — instant transition
+function enterDashboard(){
+document.getElementById('intro').classList.add('hide');
+document.getElementById('dashboard').classList.add('show');
+startCounters();
+fetchLivePrice();
+setTimeout(()=>{document.getElementById('intro').style.display='none'},500);
+// Lazy-init charts: stagger them so UI stays responsive
+const chartInits=[];
+function deferChart(fn){chartInits.push(fn)}
+function runCharts(){if(!chartInits.length)return;const fn=chartInits.shift();fn();requestAnimationFrame(()=>setTimeout(runCharts,30))}
+setupChartInits(deferChart);requestAnimationFrame(runCharts)}
+
+// ANIMATED COUNTERS with requestAnimationFrame and easeOutQuad
+function easeOutQuad(t) {
+    return t * (2 - t);
+}
+
+function animateNumber(el) {
+    const target = parseFloat(el.getAttribute('data-count-to'));
+    if (isNaN(target)) return;
+    
+    const prefix = el.getAttribute('data-count-prefix') || '';
+    const suffix = el.getAttribute('data-count-suffix') || '';
+    const decimals = parseInt(el.getAttribute('data-count-decimals')) || 0;
+    
+    const duration = 1600; // 1.6s for high-luxury deceleration feel
+    let startTime = null;
+    
+    function update(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const easedProgress = easeOutQuad(progress);
+        const current = easedProgress * target;
+        
+        let formattedValue;
+        if (decimals > 0) {
+            formattedValue = current.toFixed(decimals);
+        } else {
+            formattedValue = Math.floor(current).toLocaleString('en-IN');
+        }
+        
+        el.textContent = prefix + formattedValue + suffix;
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            // Precise target value on completion
+            if (decimals > 0) {
+                formattedValue = target.toFixed(decimals);
+            } else {
+                formattedValue = Math.floor(target).toLocaleString('en-IN');
+            }
+            el.textContent = prefix + formattedValue + suffix;
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+function initEasedCounters() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateNumber(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('[data-count-to]').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+function startCounters() {
+    initEasedCounters();
+}
+
+// LIVE STOCK TRACKER (Multi-Tiered + Sim-Tick Hybrid)
+let stockState = {
+    price: 4105.00,
+    previousClose: 4083.10,
+    change: 21.90,
+    changePercent: 0.54,
+    source: "Simulated Market Engine",
+    lastFetched: new Date()
+};
+
+function updateTrackerUI(isTick = false, direction = 0) {
+    const tickerEl = document.getElementById('tickerPrice');
+    const changeEl = document.getElementById('tickerChange');
+    const timeEl = document.getElementById('tickerTime');
+    const trackerEl = document.getElementById('liveTracker');
+    
+    if (!tickerEl || !changeEl || !timeEl) return;
+    
+    tickerEl.textContent = 'TITAN.NS: INR ' + stockState.price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    
+    const arrow = stockState.change >= 0 ? '+' : '';
+    changeEl.textContent = arrow + stockState.change.toFixed(2) + ' (' + arrow + stockState.changePercent.toFixed(2) + '%)';
+    changeEl.style.color = stockState.change >= 0 ? 'var(--green)' : 'var(--red)';
+    
+    const timeString = new Date().toLocaleTimeString('en-IN');
+    timeEl.textContent = stockState.source + ' | ' + timeString;
+    
+    // Smooth micro-flash visual effect on every random walk tick
+    if (isTick && trackerEl) {
+        trackerEl.style.transition = 'background 0.3s ease';
+        if (direction > 0) {
+            trackerEl.style.background = 'rgba(74, 222, 128, 0.08)'; // Soft gold-green flash
+        } else if (direction < 0) {
+            trackerEl.style.background = 'rgba(232, 85, 85, 0.08)'; // Soft red flash
+        }
+        setTimeout(() => {
+            trackerEl.style.background = 'rgba(10, 10, 15, 0.95)';
+        }, 400);
+    }
+}
+
+// Multi-tiered Live Fetch (Local JSON -> Direct API -> CORS Proxy API)
+async function fetchLivePrice() {
+    try {
+        // TIER 1: Fetch local JSON bridge
+        const resp = await fetch('titan_stock.json');
+        if (!resp.ok) throw new Error('Local JSON unavailable');
+        const data = await resp.json();
+        if (data && data.price) {
+            stockState.price = data.price;
+            stockState.previousClose = data.previous_close || 4083.10;
+            stockState.change = data.change || (data.price - stockState.previousClose);
+            stockState.changePercent = data.change_percent || (stockState.change / stockState.previousClose * 100);
+            stockState.source = "Local Terminal Bridge";
+            updateTrackerUI();
+            return;
+        }
+    } catch (e1) {
+        console.log('Tier 1 Local Bridge failed:', e1.message);
+    }
+    
+    try {
+        // TIER 2: Direct Yahoo Finance Query
+        const url = 'https://query1.finance.yahoo.com/v8/finance/chart/TITAN.NS?interval=1d&range=1d';
+        const resp = await fetch(url);
+        if (resp.ok) {
+            const data = await resp.json();
+            const meta = data.chart.result[0].meta;
+            stockState.price = meta.regularMarketPrice;
+            stockState.previousClose = meta.previousClose || meta.chartPreviousClose || 4083.10;
+            stockState.change = stockState.price - stockState.previousClose;
+            stockState.changePercent = (stockState.change / stockState.previousClose) * 100;
+            stockState.source = "Live via Yahoo Finance";
+            updateTrackerUI();
+            return;
+        }
+    } catch (e2) {
+        console.log('Tier 2 Direct API failed:', e2.message);
+    }
+    
+    try {
+        // TIER 3: CORS Proxy failover (AllOrigins)
+        const url = 'https://query1.finance.yahoo.com/v8/finance/chart/TITAN.NS?interval=1d&range=1d';
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+        const resp = await fetch(proxyUrl);
+        if (resp.ok) {
+            const wrapper = await resp.json();
+            const data = JSON.parse(wrapper.contents);
+            const meta = data.chart.result[0].meta;
+            stockState.price = meta.regularMarketPrice;
+            stockState.previousClose = meta.previousClose || meta.chartPreviousClose || 4083.10;
+            stockState.change = stockState.price - stockState.previousClose;
+            stockState.changePercent = (stockState.change / stockState.previousClose) * 100;
+            stockState.source = "Live via Yahoo Finance (CORS)";
+            updateTrackerUI();
+            return;
+        }
+    } catch (e3) {
+        console.log('Tier 3 CORS Proxy failed:', e3.message);
+    }
+}
+
+// Interactive Real-Time Simulator Loop (ticks every 3 seconds)
+function runSimulationTick() {
+    const tickDirection = Math.random() > 0.52 ? 1 : -1; // 52% upward drift bias
+    const percentChange = (Math.random() * 0.03) * tickDirection; // Max 0.03% change per tick
+    
+    const oldPrice = stockState.price;
+    stockState.price = Math.round((stockState.price * (1 + percentChange / 100)) * 100) / 100;
+    stockState.change = stockState.price - stockState.previousClose;
+    stockState.changePercent = (stockState.change / stockState.previousClose) * 100;
+    
+    const direction = stockState.price > oldPrice ? 1 : (stockState.price < oldPrice ? -1 : 0);
+    updateTrackerUI(true, direction);
+}
+
+// Start tracking timers
+setInterval(fetchLivePrice, 15000);
+setInterval(runSimulationTick, 3000);
+
+// SCROLL REVEAL
+const observer=new IntersectionObserver((entries)=>{
+entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}})},{threshold:0.1});
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.reveal').forEach(el=>observer.observe(el))});
+
+// SUB-BRAND DATA (no emojis)
+const brandData={
+tanishq:{name:'Tanishq',desc:"India's most trusted jewellery brand and the backbone of Titan's revenue. Tanishq revolutionized India's jewellery retail with certified purity (Karatmeter), elegant designs, and 900+ stores. It operates across wedding, daily wear, and gifting segments.",revenue:'~INR 48,000 Cr',contribution:'87% of Jewellery',stores:'900+',segment:'Jewellery'},
+caratlane:{name:'CaratLane',desc:"India's largest omni-channel jewellery brand, acquired by Titan. Known for contemporary, affordable fine jewellery designs and a strong digital-first approach with 280+ stores and a leading e-commerce platform.",revenue:'~INR 5,200 Cr',contribution:'~9.5% of Revenue',stores:'280+',segment:'Jewellery (Digital)'},
+titan_watches:{name:'Titan Watches',desc:"India's leading watch brand offering premium timepieces with Swiss craftsmanship and Indian design sensibility. Ranges from Edge (world's slimmest) to Raga and Classique collections.",revenue:'~INR 2,800 Cr',contribution:'~5% of Revenue',stores:'500+',segment:'Watches'},
+fastrack:{name:'Fastrack',desc:"India's iconic youth lifestyle brand for watches, sunglasses, bags, and accessories. Known for bold marketing and affordable fashion-forward products targeting millennials and Gen-Z.",revenue:'~INR 1,200 Cr',contribution:'~2.2% of Revenue',stores:'200+',segment:'Watches & Accessories'},
+titan_eye:{name:'Titan Eye+',desc:"Premium eyecare retail chain offering prescription eyewear, sunglasses, and contact lenses with advanced eye-testing technology and a wide range of international and in-house brands.",revenue:'~INR 812 Cr',contribution:'~1.5% of Revenue',stores:'800+',segment:'Eyecare'},
+taneira:{name:'Taneira',desc:"Titan's premium handcrafted saree brand celebrating India's rich textile heritage. Offers curated collections of authentic handwoven sarees from across India's weaving clusters.",revenue:'~INR 350 Cr',contribution:'~0.6% of Revenue',stores:'65+',segment:'Emerging'},
+zoya:{name:'Zoya',desc:"Titan's ultra-luxury fine jewellery brand positioned at the pinnacle of Indian luxury retail. Each piece is a work of art featuring rare gemstones and exceptional craftsmanship for the discerning connoisseur.",revenue:'~INR 600 Cr',contribution:'~1.1% of Revenue',stores:'8',segment:'Luxury Jewellery'},
+mia:{name:'Mia by Tanishq',desc:"Contemporary fine jewellery brand targeting modern working women. Mia offers 14kt gold and diamond jewellery designed for everyday elegance — lightweight, affordable, and fashion-forward.",revenue:'~INR 800 Cr',contribution:'~1.5% of Revenue',stores:'75+',segment:'Jewellery'},
+sonata:{name:'Sonata',desc:"India's largest selling watch brand by volume. Sonata makes stylish watches accessible to every Indian with price points starting under INR 500, serving the mass-market segment.",revenue:'~INR 500 Cr',contribution:'~0.9% of Revenue',stores:'Pan-India',segment:'Watches (Value)'},
+skinn:{name:'Skinn by Titan',desc:"Titan's foray into the premium fragrances market. Skinn offers French-crafted perfumes with high concentration of aromatic compounds, positioned as accessible luxury in personal care.",revenue:'~INR 180 Cr',contribution:'~0.3% of Revenue',stores:'Online + Retail',segment:'Fragrances'},
+helios:{name:'Helios',desc:"India's premium multi-brand watch retail concept. Helios stores house a curated selection of international watch brands including Tommy Hilfiger, Police, Timberland, FCUK, and more.",revenue:'~INR 400 Cr',contribution:'~0.7% of Revenue',stores:'75+',segment:'Watch Retail'},
+teal:{name:'TEAL (Titan Engineering)',desc:"Titan's precision engineering and automation division serving aerospace, defense, automotive, and healthcare sectors. TEAL manufactures complex components and assemblies with micron-level precision.",revenue:'~INR 350 Cr',contribution:'~0.6% of Revenue',stores:'3 Facilities',segment:'Engineering'}
+};
+
+function showBrand(key){
+const d=brandData[key];if(!d)return;
+document.querySelectorAll('.brand-card').forEach(c=>c.classList.remove('active'));
+event.currentTarget.classList.add('active');
+const el=document.getElementById('brandDetail');
+el.innerHTML=`<h3>${d.name}</h3><p>${d.desc}</p>
+<div class="brand-metrics">
+<div class="brand-metric"><div class="val">${d.revenue}</div><div class="lbl">Revenue (Est.)</div></div>
+<div class="brand-metric"><div class="val">${d.contribution}</div><div class="lbl">Contribution</div></div>
+<div class="brand-metric"><div class="val">${d.stores}</div><div class="lbl">Stores</div></div>
+<div class="brand-metric"><div class="val">${d.segment}</div><div class="lbl">Segment</div></div>
+</div>`;
+el.classList.add('show');el.scrollIntoView({behavior:'smooth',block:'nearest'})}
+
+// CHART CONFIG
+const goldColor='rgba(197,165,90,1)',goldBg='rgba(197,165,90,0.15)';
+const accentColor='rgba(42,111,219,1)',accentBg='rgba(42,111,219,0.15)';
+const greenColor='rgba(74,222,128,1)',greenBg='rgba(74,222,128,0.15)';
+const redColor='rgba(232,85,85,1)',redBg='rgba(232,85,85,0.15)';
+Chart.defaults.color='#9898A8';Chart.defaults.borderColor='rgba(255,255,255,0.06)';
+Chart.defaults.font.family='Inter';
+
+function setupChartInits(q){
+q(()=>new Chart(document.getElementById('segmentPie'),{type:'doughnut',data:{
+labels:['Jewellery','Watches & Wearables','Eyecare','Others'],
+datasets:[{data:[53235,4502,812,305],backgroundColor:['rgba(197,165,90,0.8)','rgba(42,111,219,0.8)','rgba(74,222,128,0.8)','rgba(232,85,85,0.8)'],
+borderColor:'rgba(10,10,15,0.8)',borderWidth:3,hoverOffset:8}]},
+options:{animation:{duration:600},cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyle:'circle',font:{size:11}}}}}}));
+
+q(()=>new Chart(document.getElementById('segmentBar'),{type:'bar',data:{
+labels:['FY21','FY22','FY23','FY24','FY25'],
+datasets:[
+{label:'Jewellery',data:[18363,24714,31867,38353,53235],backgroundColor:goldBg,borderColor:goldColor,borderWidth:1},
+{label:'Watches',data:[1732,2512,3475,4008,4502],backgroundColor:accentBg,borderColor:accentColor,borderWidth:1},
+{label:'Eyecare',data:[363,533,674,707,812],backgroundColor:greenBg,borderColor:greenColor,borderWidth:1}
+]},options:{animation:{duration:600},responsive:true,scales:{x:{stacked:false},y:{beginAtZero:true,ticks:{callback:v=>'INR '+v.toLocaleString('en-IN')}}},
+plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',font:{size:11}}}}}}));
+
+q(()=>new Chart(document.getElementById('revChart'),{type:'bar',data:{
+labels:['FY21','FY22','FY23','FY24','FY25'],
+datasets:[
+{label:'Revenue',data:[20587,27917,36226,43318,55355],backgroundColor:goldBg,borderColor:goldColor,borderWidth:1.5,borderRadius:4},
+{label:'Net Profit',data:[975,2198,3200,3496,3335],backgroundColor:accentBg,borderColor:accentColor,borderWidth:1.5,borderRadius:4}
+]},options:{animation:{duration:600},scales:{y:{ticks:{callback:v=>'INR '+v.toLocaleString('en-IN')}}},
+plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle'}}}}}));
+
+q(()=>new Chart(document.getElementById('ratioChart'),{type:'line',data:{
+labels:['FY21','FY22','FY23','FY24','FY25'],
+datasets:[
+{label:'ROCE %',data:[18.5,27.2,32.1,33.8,30.6],borderColor:goldColor,backgroundColor:goldBg,fill:true,tension:0.4},
+{label:'ROE %',data:[15.2,28.5,35.0,38.2,37.7],borderColor:accentColor,backgroundColor:accentBg,fill:true,tension:0.4},
+{label:'Net Margin %',data:[4.7,7.9,8.8,8.1,6.0],borderColor:greenColor,backgroundColor:greenBg,fill:true,tension:0.4}
+]},options:{animation:{duration:600},scales:{y:{ticks:{callback:v=>v+'%'}}},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle'}}}}}));
+
+q(()=>{
+const canvas=document.getElementById('stockChart');
+const ctx=canvas.getContext('2d');
+const gradient=ctx.createLinearGradient(0,0,0,250);
+gradient.addColorStop(0,'rgba(197,165,90,0.4)');
+gradient.addColorStop(1,'rgba(197,165,90,0.0)');
+new Chart(canvas,{type:'line',data:{
+labels:['Jan 21','Jul 21','Jan 22','Jul 22','Jan 23','Jul 23','Jan 24','Jul 24','Jan 25','Jul 25','Jan 26','May 26'],
+datasets:[{label:'Stock Price (INR)',
+data:[1520,1780,2420,2150,2680,3050,3380,3520,3250,3680,4200,4450],
+borderColor:goldColor,borderWidth:2,backgroundColor:gradient,fill:true,tension:0.3,pointBackgroundColor:goldColor,pointRadius:3,pointHoverRadius:5}]},
+options:{animation:{duration:600},scales:{y:{ticks:{callback:v=>'INR '+v}}},plugins:{legend:{display:false}}}})});
+
+q(()=>{
+const canvas=document.getElementById('peChart');
+const ctx=canvas.getContext('2d');
+const gradient=ctx.createLinearGradient(0,0,0,250);
+gradient.addColorStop(0,'rgba(232,85,85,0.4)');
+gradient.addColorStop(1,'rgba(232,85,85,0.0)');
+new Chart(canvas,{type:'line',data:{
+labels:['Mar 21','Sep 21','Mar 22','Sep 22','Mar 23','Sep 23','Mar 24','Sep 24','Mar 25','May 26'],
+datasets:[
+{label:'P/E Ratio',
+data:[183,155,142,110,73.7,85,92,88,82,80],
+borderColor:redColor,borderWidth:2,backgroundColor:gradient,fill:true,tension:0.3,pointBackgroundColor:redColor,pointRadius:3,pointHoverRadius:5},
+{label:'5-Year Average P/E (108.6x)',
+data:Array(10).fill(108.6),
+borderColor:'rgba(197,165,90,0.85)',borderWidth:1.5,borderDash:[5,5],fill:false,pointRadius:0,pointHoverRadius:0}
+]},
+options:{animation:{duration:600},scales:{y:{ticks:{callback:v=>v+'x'}}},
+plugins:{legend:{display:true,position:'top',labels:{color:'#9898A8',font:{size:10,family:'Inter'},boxWidth:12,padding:8}}}}})});
+
+q(()=>new Chart(document.getElementById('shareChart'),{type:'doughnut',data:{
+labels:['Promoters (Tata+TIDCO)','FIIs/FPIs','Mutual Funds','LIC & DIIs','Public & Retail'],
+datasets:[{data:[52.9,18.5,12.8,6.3,9.5],
+backgroundColor:['rgba(197,165,90,0.85)','rgba(42,111,219,0.8)','rgba(74,222,128,0.8)','rgba(156,120,255,0.8)','rgba(232,85,85,0.7)'],
+borderColor:'rgba(10,10,15,0.8)',borderWidth:3}]},
+options:{animation:{duration:600},cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyle:'circle',font:{size:10}}}}}}));
+
+q(()=>new Chart(document.getElementById('debtChart'),{type:'bar',data:{
+labels:['FY21','FY22','FY23','FY24','FY25'],
+datasets:[
+{label:'Equity + Reserves',data:[5200,6800,8100,8900,9800],backgroundColor:goldBg,borderColor:goldColor,borderWidth:1.5,borderRadius:4},
+{label:'Total Debt',data:[1800,2200,2600,3500,3200],backgroundColor:redBg,borderColor:redColor,borderWidth:1.5,borderRadius:4}
+]},options:{animation:{duration:600},scales:{y:{stacked:false,ticks:{callback:v=>'INR '+v.toLocaleString('en-IN')+' Cr'}}},
+plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle'}}}}}));
+
+q(()=>new Chart(document.getElementById('divChart'),{type:'bar',data:{
+labels:['FY20','FY21','FY22','FY23','FY24','FY25'],
+datasets:[{label:'Dividend Per Share (INR)',data:[4,4,7.5,10,11,11],
+backgroundColor:goldBg,borderColor:goldColor,borderWidth:1.5,borderRadius:6,barPercentage:0.5}]},
+options:{animation:{duration:600},scales:{y:{ticks:{callback:v=>'INR '+v}}},plugins:{legend:{display:false}}}}));
+
+q(()=>new Chart(document.getElementById('divYieldChart'),{type:'line',data:{
+labels:['FY20','FY21','FY22','FY23','FY24','FY25'],
+datasets:[
+{label:'Dividend Yield %',data:[0.35,0.25,0.30,0.32,0.28,0.25],borderColor:greenColor,backgroundColor:greenBg,fill:true,tension:0.4,yAxisID:'y'},
+{label:'Payout Ratio %',data:[28,26,24,22,22,23],borderColor:accentColor,backgroundColor:accentBg,fill:false,tension:0.4,yAxisID:'y1'}
+]},options:{animation:{duration:600},scales:{y:{position:'left',ticks:{callback:v=>v+'%'}},y1:{position:'right',grid:{display:false},ticks:{callback:v=>v+'%'}}},
+plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle'}}}}}));
+}
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+a.addEventListener('click',e=>{e.preventDefault();
+const t=document.querySelector(a.getAttribute('href'));
+if(t)t.scrollIntoView({behavior:'smooth'})})});
+</script>
+</body>
+</html>
